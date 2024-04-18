@@ -57,4 +57,29 @@ const getUserDetail = (req, res) => {
   });
 };
 
-module.exports = { getUser, getUserDetail };
+const postUser = (req, res) => {
+  const body = req.body;
+
+  const formData = {
+    name: body.name,
+    age: body.age,
+    address: body.address,
+  };
+
+  var sql = 'INSERT INTO users SET ?';
+
+  db.query(sql, formData, (err, rows, field) => {
+    if (err) {
+      return res.status(500).json({
+        message: 'internal server error',
+        error: err?.sqlMessage,
+      });
+    }
+
+    return res.status(200).json({
+      message: 'success',
+    });
+  });
+};
+
+module.exports = { getUser, getUserDetail, postUser };
