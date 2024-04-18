@@ -2,7 +2,7 @@ const db = require('../database');
 const data = require('../user');
 
 const getUser = (req, res) => {
-  db.query('select * from users', (err, rows, field) => {
+  db.query('SELECT * FROM users', (err, rows, field) => {
     if (err) {
       return res.status(500).json({
         message: 'internal server error',
@@ -27,7 +27,7 @@ const getUser = (req, res) => {
 const getUserDetail = (req, res) => {
   var id = req.params.id;
 
-  var sql = 'select * from users where id = ?';
+  var sql = 'SELECT * FROM users WHERE id = ?';
 
   db.query(sql, id, (err, rows, field) => {
     if (err) {
@@ -82,4 +82,23 @@ const postUser = (req, res) => {
   });
 };
 
-module.exports = { getUser, getUserDetail, postUser };
+const deleteUser = (req, res) => {
+  var id = req.params.id;
+
+  var sql = 'DELETE FROM users WHERE id = ?';
+
+  db.query(sql, id, (err, rows, field) => {
+    if (err) {
+      return res.status(500).json({
+        message: 'internal server error',
+        error: err?.sqlMessage,
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Success Delete user',
+    });
+  });
+};
+
+module.exports = { getUser, getUserDetail, postUser, deleteUser };

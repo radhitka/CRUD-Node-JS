@@ -7,6 +7,7 @@ const {
   getUser,
   getUserDetail,
   postUser,
+  deleteUser,
 } = require('./controller/user_controller');
 
 app.use(bodyParser.json());
@@ -15,6 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/users', getUser);
 app.get('/users/:id', getUserDetail);
 app.post('/users/add', postUser);
+app.delete('/users/:id', deleteUser);
 
 app.get('*', (req, res) => {
   res.status(404).json({
