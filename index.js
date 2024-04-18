@@ -8,6 +8,7 @@ const {
   getUserDetail,
   postUser,
   deleteUser,
+  updateUser,
 } = require('./controller/user_controller');
 
 app.use(bodyParser.json());
@@ -17,6 +18,7 @@ app.get('/users', getUser);
 app.get('/users/:id', getUserDetail);
 app.post('/users/add', postUser);
 app.delete('/users/:id', deleteUser);
+app.patch('/users/:id', updateUser);
 
 app.get('*', (req, res) => {
   res.status(404).json({

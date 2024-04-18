@@ -101,4 +101,31 @@ const deleteUser = (req, res) => {
   });
 };
 
-module.exports = { getUser, getUserDetail, postUser, deleteUser };
+const updateUser = (req, res) => {
+  var id = req.params.id;
+
+  const body = req.body;
+
+  const formData = {
+    name: body.name,
+    age: body.age,
+    address: body.address,
+  };
+
+  var sql = 'UPDATE users SET ? where id = ?';
+
+  db.query(sql, [formData, id], (err, rows, field) => {
+    if (err) {
+      return res.status(500).json({
+        message: 'internal server error',
+        error: err?.sqlMessage,
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Success Update User',
+    });
+  });
+};
+
+module.exports = { getUser, getUserDetail, postUser, deleteUser, updateUser };
