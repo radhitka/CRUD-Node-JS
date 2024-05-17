@@ -12,12 +12,14 @@ const {
   updateUser,
   loginUser,
   profileUser,
+  registerUser,
 } = require('./controller/user_controller');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/login', loginUser);
+app.post('/register', registerUser);
 
 app.use(verifyToken);
 

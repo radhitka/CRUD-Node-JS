@@ -4,7 +4,7 @@ const db = require('../database');
 const data = require('../user');
 
 const getUser = (req, res) => {
-  db.query('SELECT * FROM users', (err, rows, field) => {
+  db.query('SELECT * FROM employees', (err, rows, field) => {
     if (err) {
       return res.status(500).json({
         message: 'internal server error',
@@ -18,6 +18,7 @@ const getUser = (req, res) => {
         return {
           id: item.id,
           name: item.name,
+          role: item.role,
           age: item.age,
           address: item.address,
         };
@@ -29,7 +30,7 @@ const getUser = (req, res) => {
 const getUserDetail = (req, res) => {
   var id = req.params.id;
 
-  var sql = 'SELECT * FROM users WHERE id = ?';
+  var sql = 'SELECT * FROM employees WHERE id = ?';
 
   db.query(sql, id, (err, rows, field) => {
     if (err) {
@@ -51,6 +52,7 @@ const getUserDetail = (req, res) => {
         return {
           id: item.id,
           name: item.name,
+          role: item.role,
           age: item.age,
           address: item.address,
         };
@@ -62,16 +64,14 @@ const getUserDetail = (req, res) => {
 const postUser = async (req, res) => {
   const body = req.body;
 
-  const newPassword = await bcrypt.hash(body.password, 10);
-
   const formData = {
     name: body.name,
+    role: body.role,
     age: body.age,
     address: body.address,
-    password: newPassword,
   };
 
-  var sql = 'INSERT INTO users SET ?';
+  var sql = 'INSERT INTO employees SET ?';
 
   db.query(sql, formData, (err, rows, field) => {
     if (err) {
@@ -90,7 +90,7 @@ const postUser = async (req, res) => {
 const deleteUser = (req, res) => {
   var id = req.params.id;
 
-  var sql = 'DELETE FROM users WHERE id = ?';
+  var sql = 'DELETE FROM employees WHERE id = ?';
 
   db.query(sql, id, (err, rows, field) => {
     if (err) {
@@ -110,16 +110,15 @@ const updateUser = async (req, res) => {
   var id = req.params.id;
 
   const body = req.body;
-  const newPassword = await bcrypt.hash(body.password, 10);
 
   const formData = {
     name: body.name,
+    role: body.role,
     age: body.age,
     address: body.address,
-    password: newPassword,
   };
 
-  var sql = 'UPDATE users SET ? where id = ?';
+  var sql = 'UPDATE employees SET ? where id = ?';
 
   db.query(sql, [formData, id], (err, rows, field) => {
     if (err) {
@@ -136,11 +135,11 @@ const updateUser = async (req, res) => {
 };
 
 const loginUser = (req, res) => {
-  const { name, password } = req.body;
+  const { username, password } = req.body;
 
-  var sql = 'select * from users where name = ?';
+  var sql = 'select * from users where username = ?';
 
-  db.query(sql, name, async (err, rows, field) => {
+  db.query(sql, username, async (err, rows, field) => {
     if (err) {
       return res.status(500).json({
         message: 'internal server error',
@@ -179,6 +178,50 @@ const loginUser = (req, res) => {
   });
 };
 
+const registerUser = async (req, res) => {
+  const { name, username, password } = req.body;
+
+  var sqlSearch = 'SELECT * FROM users WHERE username = ?';
+
+  db.query(sqlSearch, username, async (err, rows, field) => {
+    if (err) {
+      return res.status(500).json({
+        message: 'internal server error',
+        error: err?.sqlMessage,
+      });
+    }
+
+    if (rows.length > 0) {
+      return res.status(422).json({
+        message: 'Username sudah digunakan!',
+      });
+    }
+
+    const newPassword = await bcrypt.hash(password, 10);
+
+    const formData = {
+      name: name,
+      username: username,
+      password: newPassword,
+    };
+
+    var sql = 'INSERT INTO users SET ?';
+
+    db.query(sql, formData, (err, rows, field) => {
+      if (err) {
+        return res.status(500).json({
+          message: 'internal server error',
+          error: err?.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        message: 'success',
+      });
+    });
+  });
+};
+
 const profileUser = (req, res) => {
   const userId = req.userId;
 
@@ -205,6 +248,7 @@ const profileUser = (req, res) => {
       data: {
         id: data.id,
         name: data.name,
+        username: data.username,
       },
     });
   });
@@ -218,4 +262,5 @@ module.exports = {
   updateUser,
   loginUser,
   profileUser,
+  registerUser,
 };
